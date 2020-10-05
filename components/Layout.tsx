@@ -1,41 +1,32 @@
-import React, { ReactNode } from 'react'
-import Link from 'next/link'
-import Head from 'next/head'
+import { Layout as AntLayout, Space } from "antd";
+import { Drawer } from "./Drawer";
+import { Typography } from "antd";
+
+const { Title } = Typography;
+
+const { Header, Sider, Content } = AntLayout;
 
 type Props = {
-  children?: ReactNode
-  title?: string
-}
+  children: React.ReactNode;
+  header?: React.ReactNode;
+  title: string | React.ReactNode;
+};
 
-const Layout = ({ children, title = 'This is the default title' }: Props) => (
-  <div>
-    <Head>
-      <title>{title}</title>
-      <meta charSet="utf-8" />
-      <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-    </Head>
-    <header>
-      <nav>
-        <Link href="/">
-          <a>Home</a>
-        </Link>{' '}
-        |{' '}
-        <Link href="/about">
-          <a>About</a>
-        </Link>{' '}
-        |{' '}
-        <Link href="/users">
-          <a>Users List</a>
-        </Link>{' '}
-        | <a href="/api/users">Users API</a>
-      </nav>
-    </header>
-    {children}
-    <footer>
-      <hr />
-      <span>I'm here to stay (Footer)</span>
-    </footer>
-  </div>
-)
-
-export default Layout
+export const Layout = ({ children, header, title }: Props) => {
+  return (
+    <AntLayout>
+      <Sider>
+        <Drawer />
+      </Sider>
+      <AntLayout style={{ minHeight: "100vh" }}>
+        {header && <Header>{header}</Header>}
+        <Content>
+          <Space style={{ padding: 24 }} direction="vertical">
+            <Title level={2}>{title}</Title>
+            {children}
+          </Space>
+        </Content>
+      </AntLayout>
+    </AntLayout>
+  );
+};
