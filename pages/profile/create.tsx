@@ -22,7 +22,16 @@ export const Create = () => {
     any
   ] = React.useState<ProfileItem[]>([]);
   const [name, setName] = React.useState<string>("");
-  const { store } = useProfile();
+
+  /** Error state */
+  const [nameError, setNameError] = React.useState<string | undefined>();
+  const [compoundError, setCompoundError] = React.useState<
+    string | undefined
+  >();
+  const [selectedCompoundError, setSelectedCompoundError] = React.useState<{
+    [key: string]: string;
+  }>({});
+  const { store, profiles } = useProfile();
   const router = useRouter();
 
   const onItemValueChange = (
@@ -42,12 +51,65 @@ export const Create = () => {
       }),
     ]);
 
+  const validateForm = () => {
+    resetValidation();
+    let isValid = true;
+
+    /** Empty name */
+    if (name === "") {
+      setNameError("Please provide name for the profile");
+      isValid = false;
+    }
+
+    /** Duplicate name */
+    if (
+      profiles.some((p: Profile) => p.name.toLowerCase() === name.toLowerCase())
+    ) {
+      setNameError("Profile with that name already exists");
+    }
+
+    /** No compounds added */
+    if (compounds.length === 0) {
+      setCompoundError("Please add at least one compound");
+      isValid = false;
+    }
+
+    /** Compound value errors */
+    let compoundValueErrors = {};
+    selectedCompounds.forEach((compound) => {
+      if (compound.min === 0 && compound.max === 0) {
+        compoundValueErrors = {
+          ...compoundValueErrors,
+          [compound.name]: "Compound values cannot be 0",
+        };
+
+        isValid = false;
+      }
+    });
+
+    setSelectedCompoundError(compoundValueErrors);
+
+    console.log(selectedCompoundError);
+
+    return isValid;
+  };
   const resetForm = () => {
+    resetValidation();
     setSelectedCompounds([]);
     setName("");
   };
 
+  const resetValidation = () => {
+    setCompoundError(undefined);
+    setNameError(undefined);
+    setSelectedCompoundError({});
+  };
+
   const handleSave = React.useCallback(() => {
+    if (!validateForm()) {
+      return;
+    }
+
     const profile: Profile = store({
       name,
       compounds: selectedCompounds,
@@ -64,6 +126,7 @@ export const Create = () => {
         onChange={(e) => setName(e.target.value)}
         value={name}
       />
+      {nameError && <Text type="danger">{nameError}</Text>}
       <br />
       <Title level={3}>Compounds</Title>
       <Select
@@ -97,33 +160,43 @@ export const Create = () => {
           </Option>
         ))}
       </Select>
+      {compoundError && <Text type="danger">{compoundError}</Text>}
       <br />
       {selectedCompounds.length ? (
         <>
-          {selectedCompounds.map(({ name, min, max }) => (
-            <Input.Group>
-              <Title level={4}>{name}</Title>
-              <InputNumber
-                min={0}
-                max={1}
-                step={0.01}
-                onChange={(value) => onItemValueChange(name, value, "min")}
-                placeholder="Min %"
-                size="large"
-                style={{ width: "calc(100% / 3)" }}
-                value={min}
-              />
-              <InputNumber
-                min={0}
-                max={1}
-                step={0.01}
-                onChange={(value) => onItemValueChange(name, value, "max")}
-                size="large"
-                style={{ width: "calc(100% / 3)" }}
-                value={max}
-              />
-            </Input.Group>
-          ))}
+          {selectedCompounds.map(({ name, min, max }) => {
+            return (
+              <>
+                <Input.Group key={name}>
+                  <Title level={4}>{name}</Title>
+                  <InputNumber
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onChange={(value) => onItemValueChange(name, value, "min")}
+                    placeholder="Min %"
+                    size="large"
+                    style={{ width: "calc(100% / 3)" }}
+                    value={min}
+                  />
+                  <InputNumber
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    onChange={(value) => onItemValueChange(name, value, "max")}
+                    size="large"
+                    style={{ width: "calc(100% / 3)" }}
+                    value={max}
+                  />
+                </Input.Group>
+                {selectedCompoundError[name as any] && (
+                  <Text type="danger">
+                    {selectedCompoundError[name as any]}
+                  </Text>
+                )}
+              </>
+            );
+          })}
         </>
       ) : (
         <Text>No compounds selected</Text>
