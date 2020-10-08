@@ -23,6 +23,7 @@ import { MaterialSearchResult } from "components/MaterialSearchResult";
 import ProfileMaterial from "components/ProfileMaterial";
 import { LpModel } from "entity/LpModel";
 import { SolverResult } from "entity/SolverResult";
+import { saveAs } from "file-saver";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -98,7 +99,7 @@ export const ViewProfile = () => {
     push("/profile/create");
   };
 
-  const handleCalculate = async () => {
+  const getModel = (): LpModel => {
     const model: LpModel = {
       optimize: "cost",
       opType: "min",
@@ -131,12 +132,25 @@ export const ViewProfile = () => {
       model.variables[material.name].cost = material.price || 0;
     });
 
+    return model;
+  };
+
+  const handleCalculate = async () => {
     const response = await fetch(`${process.env.URL}/api/solve`, {
       method: "post",
-      body: JSON.stringify(model),
+      body: JSON.stringify(getModel()),
     });
 
     setResult(await response.json());
+  };
+
+  const handleExport = () => {
+    saveAs(
+      new Blob([JSON.stringify(getModel())], {
+        type: "text/plain;charset=utf-8",
+      }),
+      `${profile?.name}.json`
+    );
   };
 
   // Find profile by name
@@ -246,6 +260,15 @@ export const ViewProfile = () => {
           style={{ marginRight: 8 }}
         >
           {result ? "Re-calculate" : "Calculate"}
+        </Button>
+        <Button
+          onClick={handleExport}
+          type="primary"
+          shape="round"
+          size="large"
+          style={{ marginRight: 8 }}
+        >
+          Export
         </Button>
         <Popconfirm
           placement="bottomRight"

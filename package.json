@@ -8,8 +8,10 @@
     "type-check": "tsc"
   },
   "dependencies": {
+    "@types/file-saver": "^2.0.1",
     "antd": "^4.6.2",
     "axios": "^0.20.0",
+    "file-saver": "^2.0.2",
     "javascript-lp-solver": "^0.4.24",
     "next": "latest",
     "react": "^16.12.0",
