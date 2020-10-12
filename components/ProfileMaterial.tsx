@@ -1,16 +1,18 @@
 import { Material } from "entity/Material";
 import React from "react";
-import { Typography, List } from "antd";
+import { Typography, List, Button } from "antd";
 import { useMatchingCompounds } from "utils/useMatchingCompounds";
 import { ProfileItem } from "entity/ProfileItem";
 import { MatchingCompounds } from "./MatchingCompounds";
 import { Input } from "antd";
 import Link from "next/link";
+import { DeleteOutlined } from "@ant-design/icons";
 
 type Props = {
   material: Material;
   compounds?: ProfileItem[];
   handleUpdatePrice: (price: number, material: Material) => void;
+  handleRemove: (material: Material) => void;
 };
 
 const { Link: AntLink } = Typography;
@@ -20,6 +22,7 @@ export const ProfileMaterial = ({
   material,
   compounds,
   handleUpdatePrice,
+  handleRemove,
 }: Props) => {
   const matchingCompounds = useMatchingCompounds(material, compounds);
   return (
@@ -47,6 +50,11 @@ export const ProfileMaterial = ({
         placeholder="price"
         value={material.price}
         onChange={(e) => handleUpdatePrice(Number(e.target.value), material)}
+      />
+      <Button
+        style={{ color: "red", marginLeft: 8 }}
+        type="link"
+        icon={<DeleteOutlined />}
       />
     </Item>
   );

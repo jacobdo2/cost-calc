@@ -6,6 +6,7 @@ import { ProfileItem } from "entity/ProfileItem";
 import { useProfile } from "query/useProfile";
 import { Profile } from "entity/Profile";
 import { useRouter } from "next/router";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -118,6 +119,10 @@ export const Create = () => {
     router.push(`/profile/${profile.name}`);
   }, [name, selectedCompounds]);
 
+  const handleRemoveCompound = (name: string) => {
+    setSelectedCompounds(selectedCompounds.filter((c) => c.name !== name));
+  };
+
   return (
     <Layout title="Create profile">
       <Input
@@ -166,7 +171,7 @@ export const Create = () => {
         <>
           {selectedCompounds.map(({ name, min, max }) => {
             return (
-              <>
+              <React.Fragment key={name}>
                 <Input.Group key={name}>
                   <Title level={4}>{name}</Title>
                   <InputNumber
@@ -188,13 +193,19 @@ export const Create = () => {
                     style={{ width: "calc(100% / 3)" }}
                     value={max}
                   />
+                  <Button
+                    style={{ color: "red" }}
+                    type="link"
+                    onClick={() => handleRemoveCompound(name)}
+                    icon={<DeleteOutlined />}
+                  />
                 </Input.Group>
                 {selectedCompoundError[name as any] && (
                   <Text type="danger">
                     {selectedCompoundError[name as any]}
                   </Text>
                 )}
-              </>
+              </React.Fragment>
             );
           })}
         </>

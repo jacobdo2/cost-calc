@@ -135,6 +135,15 @@ export const ViewProfile = () => {
     return model;
   };
 
+  const handleRemoveMaterial = (material: Material) => {
+    if (profile) {
+      profile.materials = profile?.materials?.filter(
+        (m) => m.id !== material.id
+      );
+      update(profile);
+    }
+  };
+
   const handleCalculate = async () => {
     const response = await fetch(`${process.env.URL}/api/solve`, {
       method: "post",
@@ -307,6 +316,7 @@ export const ViewProfile = () => {
           renderItem={(material: Material) => (
             <ProfileMaterial
               handleUpdatePrice={handleUpdatePrice}
+              handleRemove={handleRemoveMaterial}
               material={material}
               compounds={profile?.compounds}
             />
