@@ -52,6 +52,7 @@ export const ProfileMaterial = ({
         onChange={(e) => handleUpdatePrice(Number(e.target.value), material)}
       />
       <Button
+        onClick={() => handleRemove(material)}
         style={{ color: "red", marginLeft: 8 }}
         type="link"
         icon={<DeleteOutlined />}
